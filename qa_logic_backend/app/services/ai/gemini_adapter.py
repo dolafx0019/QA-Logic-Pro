@@ -121,6 +121,7 @@ async def generate_test_cases(request: GenerationRequest) -> GenerationResponse:
             expected_result=tc.expected_result,
             priority=tc.priority,
             category=tc.category,
+            test_focus=tc.test_focus,
             severity=tc.severity,
             probability=tc.probability,
             risk_score=None, # Deferred to Phase 4

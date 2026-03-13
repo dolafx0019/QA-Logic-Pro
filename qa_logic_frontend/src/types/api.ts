@@ -51,6 +51,7 @@ export interface GeneratedTestCase {
   expected_result: string;
   priority: "High" | "Medium" | "Low";
   category: "Positive" | "Negative" | "Edge Case" | "Boundary" | "Validation";
+  test_focus: "Functional" | "Performance" | "Accessibility" | "Security" | "Usability" | "Reliability" | "Compatibility" | "Other";
   severity: number;
   probability: number;
   risk_score?: number;

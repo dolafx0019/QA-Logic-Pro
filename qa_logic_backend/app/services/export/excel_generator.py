@@ -15,7 +15,7 @@ def generate_excel_bytes(response_data: GenerationResponse) -> io.BytesIO:
     ws_tests.title = "Test Cases"
     
     headers_1 = [
-        "ID", "Linked Requirement", "Title", "Category", "Priority", 
+        "ID", "Linked Requirement", "Title", "Type", "Focus", "Priority", 
         "Severity", "Probability", "Risk Score", "Risk Level", 
         "Preconditions", "Steps", "Expected Result"
     ]
@@ -34,13 +34,14 @@ def generate_excel_bytes(response_data: GenerationResponse) -> io.BytesIO:
             tc.linked_requirement,
             tc.title,
             tc.category,
+            tc.test_focus,
             tc.priority,
             tc.severity,
             tc.probability,
             tc.risk_score,
             tc.risk_level,
             tc.preconditions,
-            steps_text,
+            tc.steps_text if hasattr(tc, 'steps_text') else "\n".join(tc.steps),
             tc.expected_result
         ]
         ws_tests.append(row)
@@ -53,9 +54,9 @@ def generate_excel_bytes(response_data: GenerationResponse) -> io.BytesIO:
     # openpyxl uses 1-based indexing if accessing iter_cols but row[...] is 0-based for lists.
     # ws.iter_rows gives Cell objects. Here row is a tuple of Cells.
     for row_cells in ws_tests.iter_rows(min_row=2):
-        row_cells[9].alignment = wrap_alignment  # Preconditions
-        row_cells[10].alignment = wrap_alignment # Steps
-        row_cells[11].alignment = wrap_alignment # Expected Result
+        row_cells[10].alignment = wrap_alignment # Preconditions (was 9)
+        row_cells[11].alignment = wrap_alignment # Steps (was 10)
+        row_cells[12].alignment = wrap_alignment # Expected Result (was 11)
             
     # Auto-adjust column widths (bounded)
     for col in ws_tests.columns:

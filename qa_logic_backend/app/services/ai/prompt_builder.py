@@ -102,6 +102,11 @@ Acceptance Criteria:
 1. Do not invent business rules. If the input is incomplete, produce Assumptions and ClarificationQuestions instead of hallucinating certainty.
 2. If the inputs conflict, surface the conflict explicitly in both `clarification_questions` and `assumptions`. Do not silently choose one rule.
 3. For each test case, suggest a severity (1-5) and probability (1-5), where 5 is the most severe/probable.
-4. Follow the provided response schema exactly.
+4. **Taxonomy Rules**:
+   - `category`: Scenario type. Allowed: Positive, Negative, Edge Case, Boundary, Validation.
+   - `test_focus`: Testing domain. Allowed: Functional, Performance, Accessibility, Security, Usability, Reliability, Compatibility, Other.
+   - Example: A performance latency check is `test_focus = Performance` and `category = Validation`.
+   - Default `test_focus` to "Functional" if it is a standard business requirement check.
+5. Follow the provided response schema exactly.
 """
     return prompt.strip()

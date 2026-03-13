@@ -22,6 +22,14 @@ const categoryColour = (category: string) => {
 const priorityOrder: Record<string, number> = { 'High': 3, 'Medium': 2, 'Low': 1 };
 const riskLevelOrder: Record<string, number> = { 'High': 3, 'Medium': 2, 'Low': 1 };
 const categoryOrder: Record<string, number> = { 'Positive': 1, 'Negative': 2, 'Edge Case': 3, 'Boundary': 4, 'Validation': 5 };
+const focusOrder: Record<string, number> = { 
+  'Functional': 1, 'Performance': 2, 'Accessibility': 3, 'Security': 4, 
+  'Usability': 5, 'Reliability': 6, 'Compatibility': 7, 'Other': 8 
+};
+
+const focusColour = (focus: string) => {
+  return 'bg-qa-surface2 text-qa-text-pri border border-qa-border';
+};
 
 interface GeneratedResultsProps {
   testCases: GeneratedTestCase[];
@@ -47,7 +55,8 @@ export function GeneratedResults({
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [filterPriority, setFilterPriority] = useState<string>('All');
   const [filterRisk, setFilterRisk] = useState<string>('All');
-  const [sortBy, setSortBy] = useState<'id' | 'category' | 'priority' | 'risk_score' | 'risk_level'>('id');
+  const [filterFocus, setFilterFocus] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<'id' | 'category' | 'priority' | 'risk_score' | 'risk_level' | 'test_focus'>('id');
   const [sortAsc, setSortAsc] = useState(true);
 
   // Expand state
@@ -90,6 +99,11 @@ export function GeneratedResults({
       result = result.filter(tc => tc.risk_level === filterRisk);
     }
 
+    // Filter by Focus
+    if (filterFocus !== 'All') {
+      result = result.filter(tc => tc.test_focus === filterFocus);
+    }
+
     // Sort
     result.sort((a, b) => {
       let cmp = 0;
@@ -103,20 +117,23 @@ export function GeneratedResults({
         cmp = (a.risk_score || 0) - (b.risk_score || 0);
       } else if (sortBy === 'category') {
         cmp = (categoryOrder[a.category] || 0) - (categoryOrder[b.category] || 0);
+      } else if (sortBy === 'test_focus') {
+        cmp = (focusOrder[a.test_focus] || 0) - (focusOrder[b.test_focus] || 0);
       }
 
       return sortAsc ? cmp : -cmp;
     });
 
     return result;
-  }, [testCases, search, filterCategory, filterPriority, filterRisk, sortBy, sortAsc]);
+  }, [testCases, search, filterCategory, filterPriority, filterRisk, filterFocus, sortBy, sortAsc]);
 
-  const hasActiveFilters = search !== '' || filterCategory !== 'All' || filterPriority !== 'All' || filterRisk !== 'All';
+  const hasActiveFilters = search !== '' || filterCategory !== 'All' || filterPriority !== 'All' || filterRisk !== 'All' || filterFocus !== 'All';
   const resetFilters = () => {
     setSearch('');
     setFilterCategory('All');
     setFilterPriority('All');
     setFilterRisk('All');
+    setFilterFocus('All');
   };
 
   // Derivative metrics for UI chips (reflects currently filtered result set)
@@ -246,6 +263,24 @@ export function GeneratedResults({
 
           <div className="flex items-center bg-qa-surface1 border border-qa-border rounded-md overflow-hidden">
              <select
+               value={filterFocus}
+               onChange={(e) => setFilterFocus(e.target.value)}
+               className="bg-transparent text-xs text-qa-text-sec px-2 py-1.5 outline-none cursor-pointer hover:bg-qa-surface2 transition-colors"
+             >
+               <option value="All">All Focus Areas</option>
+               <option value="Functional">Functional</option>
+               <option value="Performance">Performance</option>
+               <option value="Accessibility">Accessibility</option>
+               <option value="Security">Security</option>
+               <option value="Usability">Usability</option>
+               <option value="Reliability">Reliability</option>
+               <option value="Compatibility">Compatibility</option>
+               <option value="Other">Other</option>
+             </select>
+          </div>
+
+          <div className="flex items-center bg-qa-surface1 border border-qa-border rounded-md overflow-hidden">
+             <select
                value={filterRisk}
                onChange={(e) => setFilterRisk(e.target.value)}
                className="bg-transparent text-xs text-qa-text-sec px-2 py-1.5 outline-none cursor-pointer hover:bg-qa-surface2 transition-colors"
@@ -281,6 +316,7 @@ export function GeneratedResults({
                <option value="risk_level">Sort by Risk</option>
                <option value="priority">Sort by Priority</option>
                <option value="category">Sort by Category</option>
+               <option value="test_focus">Sort by Focus</option>
              </select>
              <button
                onClick={() => setSortAsc(!sortAsc)}
@@ -301,7 +337,8 @@ export function GeneratedResults({
             <tr>
               <th className="w-8 px-3 py-2.5 text-center text-qa-text-sec font-medium border-r border-qa-border">#</th>
               <th className="px-4 py-2.5 text-[10px] font-bold text-qa-text-sec uppercase tracking-widest">ID</th>
-              <th className="px-4 py-2.5 text-[10px] font-bold text-qa-text-sec uppercase tracking-widest">Category</th>
+              <th className="px-4 py-2.5 text-[10px] font-bold text-qa-text-sec uppercase tracking-widest">Type</th>
+              <th className="px-4 py-2.5 text-[10px] font-bold text-qa-text-sec uppercase tracking-widest">Focus</th>
               <th className="px-4 py-2.5 text-[10px] font-bold text-qa-text-sec uppercase tracking-widest">Risk</th>
               <th className="px-4 py-2.5 text-[10px] font-bold text-qa-text-sec uppercase tracking-widest">Priority</th>
               <th className="px-4 py-2.5 text-[10px] font-bold text-qa-text-sec uppercase tracking-widest w-full">Title</th>
@@ -310,7 +347,7 @@ export function GeneratedResults({
           <tbody className="divide-y divide-qa-border">
             {processedCases.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-5 py-10 text-center text-qa-text-sec text-xs">
+                <td colSpan={7} className="px-5 py-10 text-center text-qa-text-sec text-xs">
                   No combinations found matching your current filters.
                 </td>
               </tr>
@@ -336,6 +373,11 @@ export function GeneratedResults({
                         </span>
                       </td>
                       <td className="px-4 py-3">
+                        <span className={clsx('inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider', focusColour(tc.test_focus))}>
+                          {tc.test_focus}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
                         <span className={clsx('inline-flex items-center px-2 py-0.5 rounded-md text-[10px] uppercase font-bold tabular-nums', riskColour(tc.risk_level))}>
                           {tc.risk_score} · {tc.risk_level}
                         </span>
@@ -353,7 +395,7 @@ export function GeneratedResults({
                     </tr>
                     {isOpen && (
                       <tr className="bg-qa-bg">
-                        <td colSpan={6} className="p-0 border-b border-qa-border">
+                        <td colSpan={7} className="p-0 border-b border-qa-border">
                           <div className="p-5 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
                             {/* Left Col: Steps */}
                             <div className="space-y-5 min-w-0 w-full overflow-hidden">
@@ -368,11 +410,14 @@ export function GeneratedResults({
                                 <p className="text-[10px] uppercase font-bold text-qa-text-sec mb-3 tracking-wider flex items-center gap-2">
                                   <span className="w-1.5 h-1.5 rounded-full bg-qa-accent-pri"></span> Test Steps
                                 </p>
-                                <ol className="list-decimal list-inside space-y-2">
+                                <div className="space-y-3">
                                   {tc.steps.map((s, i) => (
-                                    <li key={i} className="text-qa-text-pri/80 text-xs leading-relaxed pl-1 pb-1 border-b border-qa-border last:border-0 last:pb-0 break-words [overflow-wrap:anywhere]">{s}</li>
+                                    <div key={i} className="flex gap-3 text-xs leading-relaxed pb-2 border-b border-qa-border last:border-0 last:pb-0">
+                                      <span className="flex-shrink-0 font-mono text-qa-text-sec opacity-60 w-5">{i + 1}.</span>
+                                      <p className="flex-1 min-w-0 text-qa-text-pri/80 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{s}</p>
+                                    </div>
                                   ))}
-                                </ol>
+                                </div>
                               </div>
                             </div>
                             
@@ -392,7 +437,11 @@ export function GeneratedResults({
 
                               <div className="space-y-3">
                                 {/* Severity / Probability row */}
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-3 gap-3">
+                                  <div className="bg-qa-surface2 p-3 rounded-md border border-qa-border">
+                                    <p className="text-[9px] text-qa-text-sec uppercase font-bold tracking-widest mb-1">Focus</p>
+                                    <p className="text-qa-text-pri text-xs font-semibold">{tc.test_focus}</p>
+                                  </div>
                                   <div className="bg-qa-surface2 p-3 rounded-md border border-qa-border">
                                     <p className="text-[9px] text-qa-text-sec uppercase font-bold tracking-widest mb-1">Severity</p>
                                     <p className="text-qa-text-pri text-base font-semibold tabular-nums">{tc.severity} <span className="text-qa-text-sec/60 text-xs">/ 5</span></p>
