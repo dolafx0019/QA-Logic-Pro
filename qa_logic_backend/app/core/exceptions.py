@@ -17,25 +17,32 @@ async def custom_validation_exception_handler(request: Request, exc: RequestVali
         }
     )
 
+from typing import List, Optional, Any
+
 class BaseAPIException(Exception):
     """
     Custom HTTP exception wrapper handling predefined app exceptions 
     (e.g., Gemini timeouts, Excel export conflicts).
     """
-    def __init__(self, detail: str, code: str, status_code: int = 400):
+    def __init__(self, detail: str, code: str, status_code: int = 400, errors: Optional[List[Any]] = None):
         self.detail = detail
         self.code = code
         self.status_code = status_code
+        self.errors = errors
 
 async def custom_api_exception_handler(request: Request, exc: BaseAPIException) -> JSONResponse:
     """
     Catches custom BaseAPIException instances and maps them to JSON Response
     adhering strictly to standard DTOs.
     """
+    content = {
+        "detail": exc.detail,
+        "code": exc.code
+    }
+    if exc.errors:
+        content["errors"] = jsonable_encoder(exc.errors)
+        
     return JSONResponse(
         status_code=exc.status_code,
-        content={
-            "detail": exc.detail,
-            "code": exc.code
-        }
+        content=content
     )

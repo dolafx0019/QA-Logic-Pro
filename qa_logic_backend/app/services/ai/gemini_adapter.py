@@ -107,7 +107,12 @@ async def generate_test_cases(request: GenerationRequest) -> GenerationResponse:
         llm_response = LLMGenerationResponse.model_validate(parsed_data)
     except ValidationError as ve:
         logger.error(f"AI Schema Validation Error. Errors: {ve.errors()}")
-        raise BaseAPIException(detail="AI Provider returned data that failed strict backend schema validation.", code="AI_SCHEMA_FAILURE", status_code=502)
+        raise BaseAPIException(
+            detail="AI Provider returned data that failed strict backend schema validation.",
+            code="AI_SCHEMA_FAILURE",
+            status_code=422,
+            errors=ve.errors()
+        )
         
     # Map from LLM schema to final Backend Response architecture
     mapped_test_cases = []

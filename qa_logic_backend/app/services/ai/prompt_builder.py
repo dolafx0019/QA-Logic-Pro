@@ -103,10 +103,11 @@ Acceptance Criteria:
 2. If the inputs conflict, surface the conflict explicitly in both `clarification_questions` and `assumptions`. Do not silently choose one rule.
 3. For each test case, suggest a severity (1-5) and probability (1-5), where 5 is the most severe/probable.
 4. **Taxonomy Rules**:
-   - `category`: Scenario type. Allowed: Positive, Negative, Edge Case, Boundary, Validation.
-   - `test_focus`: Testing domain. Allowed: Functional, Performance, Accessibility, Security, Usability, Reliability, Compatibility, Other.
+   - `category`: Scenario type. Allowed values: Positive, Negative, Edge Case, Boundary, Validation.
+   - `test_focus`: Testing domain. You MUST use exactly one of these values: Functional, Performance, Accessibility, Security, Usability, Reliability, Compatibility, Other.
+   - **CRITICAL**: Do NOT use values like "Functional Testing", "Security Validation", or "Input Validation". If the domain is uncertain, use "Other".
    - Example: A performance latency check is `test_focus = Performance` and `category = Validation`.
-   - Default `test_focus` to "Functional" if it is a standard business requirement check.
+   - Default `test_focus` to "Functional" for standard business logic checks.
 5. Follow the provided response schema exactly.
 """
     return prompt.strip()

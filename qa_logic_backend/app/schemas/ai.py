@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List
+from app.schemas.enums import TestFocus
 
 class LLMClarificationQuestion(BaseModel):
     question: str
@@ -18,10 +19,7 @@ class LLMGeneratedTestCase(BaseModel):
     expected_result: str
     priority: str = Field(..., pattern="^(High|Medium|Low)$")
     category: str = Field(..., pattern="^(Positive|Negative|Edge Case|Boundary|Validation)$")
-    test_focus: str = Field(
-        default="Functional", 
-        pattern="^(Functional|Performance|Accessibility|Security|Usability|Reliability|Compatibility|Other)$"
-    )
+    test_focus: TestFocus = Field(default=TestFocus.FUNCTIONAL)
     severity: int = Field(..., ge=1, le=5)
     probability: int = Field(..., ge=1, le=5)
     notes: str = Field(default="")

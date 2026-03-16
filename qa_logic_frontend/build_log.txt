@@ -1,0 +1,9 @@
+
+> qa-logic-frontend@0.1.0 build
+> tsc && vite build
+
+src/App.tsx(3,42): error TS2307: Cannot find module '@supabase/supabase-js' or its corresponding type declarations.
+src/App.tsx(17,57): error TS7031: Binding element 'currentSession' implicitly has an 'any' type.
+src/components/dashboard/GeneratedResults.tsx(30,22): error TS6133: 'focus' is declared but its value is never read.
+src/components/prd/PRDReviewScreen.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/services/supabase.ts(1,30): error TS2307: Cannot find module '@supabase/supabase-js' or its corresponding type declarations.
